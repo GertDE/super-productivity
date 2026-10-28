@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PreloadingStrategy, Route } from '@angular/router';
-import { Observable } from 'rxjs';
-import { shareReplay, switchMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, shareReplay, switchMap } from 'rxjs/operators';
 
 /** Lets the first route render and settle before preloading starts. */
 export const PRELOAD_DELAY_MS = 2000;
@@ -46,6 +46,9 @@ export class IdlePreloadingStrategy implements PreloadingStrategy {
   );
 
   preload(route: Route, load: () => Observable<unknown>): Observable<unknown> {
-    return this._whenIdle$.pipe(switchMap(() => load()));
+    // Like PreloadAllModules, swallow load failures (offline, stale chunk after
+    // a deploy): an error here would end the router's preload subscription and
+    // surface as an unhandled error. The route still loads on demand.
+    return this._whenIdle$.pipe(switchMap(() => load().pipe(catchError(() => of(null)))));
   }
 }

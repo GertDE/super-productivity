@@ -1,5 +1,5 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import {
   IdlePreloadingStrategy,
   PRELOAD_DELAY_MS,
@@ -52,5 +52,21 @@ describe('IdlePreloadingStrategy', () => {
 
     strategy.preload({}, loadC).subscribe();
     expect(loadC).toHaveBeenCalledTimes(1);
+  }));
+
+  it('swallows a failed load like PreloadAllModules', fakeAsync(() => {
+    const load = jasmine
+      .createSpy('load')
+      .and.returnValue(throwError(() => new Error('chunk load failed')));
+    const next = jasmine.createSpy('next');
+    const error = jasmine.createSpy('error');
+
+    strategy.preload({}, load).subscribe({ next, error });
+    tick(PRELOAD_DELAY_MS);
+    flushIdle();
+
+    expect(load).toHaveBeenCalledTimes(1);
+    expect(error).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledOnceWith(null);
   }));
 });
