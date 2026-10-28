@@ -17,6 +17,7 @@ import {
 } from '../../features/menu-tree/store/menu-tree.model';
 import { environment } from '../../../environments/environment';
 import { LS } from '../../core/persistence/storage-keys.const';
+import { OpLog } from '../../core/log';
 
 describe('ValidateStateService', () => {
   let service: ValidateStateService;
@@ -250,6 +251,45 @@ describe('ValidateStateService', () => {
       expect(setItemSpy).toHaveBeenCalledWith(
         LS.LAST_CRITICAL_ERROR_TIME,
         jasmine.any(String),
+      );
+    });
+  });
+
+  describe('validateStateWhenIdle', () => {
+    const flushIdle = (): void => {
+      const idleSpy = window.requestIdleCallback as jasmine.Spy;
+      idleSpy.calls.mostRecent().args[0]({} as IdleDeadline);
+    };
+
+    beforeEach(() => {
+      spyOn(window, 'requestIdleCallback').and.returnValue(1);
+    });
+
+    it('validates only once the app is idle', async () => {
+      const validateSpy = spyOn(service, 'validateState').and.resolveTo({
+        isValid: true,
+        typiaErrors: [],
+      });
+      const state = createEmptyState();
+
+      service.validateStateWhenIdle(state, 'test');
+
+      expect(validateSpy).not.toHaveBeenCalled();
+      flushIdle();
+      expect(validateSpy).toHaveBeenCalledOnceWith(state);
+    });
+
+    it('logs instead of rejecting when validation throws', async () => {
+      const errSpy = spyOn(OpLog, 'err');
+      spyOn(service, 'validateState').and.rejectWith(new Error('chunk load failed'));
+
+      service.validateStateWhenIdle(createEmptyState(), 'test');
+      flushIdle();
+      await new Promise((resolve) => setTimeout(resolve));
+
+      expect(errSpy).toHaveBeenCalledWith(
+        '[ValidateStateService:test] Deferred validation threw',
+        jasmine.any(Error),
       );
     });
   });
