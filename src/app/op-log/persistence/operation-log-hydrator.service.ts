@@ -609,16 +609,15 @@ export class OperationLogHydratorService {
     // CHECKPOINT C: validate the replayed state. If invalid, keep the data on
     // screen but skip the snapshot save so we don't cache corrupted state. With
     // <= 10 ops there is no save to gate, so validate when idle, off the boot path.
-    const state = this.stateSnapshotService.getStateSnapshot();
     if (opsToReplay.length <= 10) {
+      const state = this.stateSnapshotService.getStateSnapshot();
       this.validateStateService.validateStateWhenIdle(state, 'tail-replay');
       return false;
     }
-    const isStateValid = await this._validateCurrentStateForHydration('tail-replay');
 
-    // 5. If we replayed many ops AND state is valid, save a new snapshot
+    // 5. We replayed many ops: if the state is valid, save a new snapshot
     // for faster future loads.
-    if (isStateValid && opsToReplay.length > 10) {
+    if (await this._validateCurrentStateForHydration('tail-replay')) {
       OpLog.normal(
         `OperationLogHydratorService: Saving new snapshot after replaying ${opsToReplay.length} ops`,
       );
