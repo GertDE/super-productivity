@@ -279,10 +279,23 @@ class CapacitorMainActivity : BridgeActivity() {
         )
         isNotificationActionDrainReceiverRegistered = true
 
-        // Schedule background sync worker if credentials are configured
-        if (BackgroundSyncCredentialStore.get(this) != null) {
-            SyncReminderScheduler.ensureScheduled(this)
-        }
+        // Schedule background sync worker if credentials are configured.
+        // Off the main thread: the first credential read opens the
+        // EncryptedSharedPreferences store (Keystore + Tink keyset setup), and
+        // in a WebView app the main thread also runs Chromium's browser side,
+        // so blocking it here stalls the page load super.onCreate() just
+        // started — on every cold start, sync configured or not. Racing a JS
+        // clear() is harmless: the worker skips when it finds no credentials.
+        val appContext = applicationContext
+        Thread({
+            try {
+                if (BackgroundSyncCredentialStore.get(appContext) != null) {
+                    SyncReminderScheduler.ensureScheduled(appContext)
+                }
+            } catch (e: Exception) {
+                Log.e("CapacitorMainActivity", "Background sync scheduling check failed", e)
+            }
+        }, "sync-schedule-check").start()
 
         // Handle initial intent (cold start) only on a fresh launch.
         // On Activity recreation (config change) savedInstanceState is non-null
