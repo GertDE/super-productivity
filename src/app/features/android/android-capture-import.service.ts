@@ -9,7 +9,7 @@ import {
 import { IS_ANDROID_WEB_VIEW } from '../../util/is-android-web-view';
 import { androidInterface } from './android-interface';
 import {
-  addInboxTaskAction,
+  addCaptureTaskAction,
   AgentCapture,
   toCaptureTask,
 } from '../tasks/agent-capture/super-sync-capture-source';
@@ -144,7 +144,7 @@ export class AndroidCaptureImportService {
       createTask: (share) => {
         const cfg = this._globalConfig.cfg();
         this._store.dispatch(
-          addInboxTaskAction(
+          addCaptureTaskAction(
             share,
             cfg?.timeTracking.defaultEstimate || 0,
             cfg?.reminder.defaultTaskRemindOption ??
