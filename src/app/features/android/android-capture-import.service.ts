@@ -15,6 +15,7 @@ import {
 } from '../tasks/agent-capture/super-sync-capture-source';
 import { GlobalConfigService } from '../config/global-config.service';
 import { DEFAULT_GLOBAL_CONFIG } from '../config/default-global-config.const';
+import { INBOX_PROJECT } from '../project/project.const';
 
 /** One entry of the native `CaptureInbox` (see CaptureInbox.kt). */
 export interface AndroidCapture {
@@ -149,6 +150,7 @@ export class AndroidCaptureImportService {
             cfg?.timeTracking.defaultEstimate || 0,
             cfg?.reminder.defaultTaskRemindOption ??
               DEFAULT_GLOBAL_CONFIG.reminder.defaultTaskRemindOption!,
+            INBOX_PROJECT.id,
           ),
         );
       },

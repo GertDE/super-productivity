@@ -97,8 +97,8 @@ export const CREATE_TASK_TOOL: McpToolDefinition = {
         description:
           'Optional: the name of an existing project to add the task to, ' +
           'matched ignoring case. If no single open project has this name, ' +
-          'the task goes to the Inbox; so does it for hidden projects and ' +
-          'projects linked to an issue tracker. Projects are never created.',
+          'the task goes to the Inbox. Hidden projects and projects linked ' +
+          'to an issue tracker are never used. Projects are never created.',
         minLength: 1,
         maxLength: CAPTURE_PROJECT_MAX_CHARS,
       },

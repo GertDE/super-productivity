@@ -45,8 +45,7 @@ export const CAPTURE_SAVED_TEXT =
   'Saved. It will appear in your Super Productivity Inbox the next time the app syncs.';
 export const CAPTURE_SAVED_PROJECT_TEXT =
   'Saved. It will appear in that Super Productivity project the next time the ' +
-  'app syncs, or in the Inbox if the app finds no single open project with ' +
-  'this name it may use.';
+  'app syncs, or in the Inbox if no single eligible project has this name.';
 export const CAPTURE_SWITCHED_OFF_TEXT =
   'AI capture is switched off in Super Productivity.';
 export const CAPTURE_REVOKED_TEXT = 'This connection was removed in Super Productivity.';

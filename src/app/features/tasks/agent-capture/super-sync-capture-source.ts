@@ -282,14 +282,14 @@ export const toCaptureTask = (
 };
 
 /**
- * One addTask for a validated capture, in the Inbox unless `projectId` names a
- * resolved project; its link, if any, rides along.
+ * One addTask for a validated capture in the resolved project; its link, if
+ * any, rides along.
  */
 export const addCaptureTaskAction = (
   capture: AgentCapture,
   defaultEstimate: number,
   defaultRemindOption: TaskReminderOptionId,
-  projectId: string = INBOX_PROJECT.id,
+  projectId: string,
 ): ReturnType<typeof TaskSharedActions.addTask> => {
   const task = capture.task as NonNullable<AgentCapture['task']>;
   return TaskSharedActions.addTask({
